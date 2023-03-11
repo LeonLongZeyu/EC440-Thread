@@ -10,15 +10,6 @@
 
 #include "threads.h"
 
-//Max number of threads
-#define MAX_NO_THREADS 128
-
-//Periodic timer (ms)
-#define TIMER 50000
-
-//Thread stack size
-#define STACK_SIZE 32767
-
 //libc defintions
 #define JB_RBX 0
 #define JB_RBP 1
@@ -28,6 +19,15 @@
 #define JB_R15 5
 #define JB_RSP 6
 #define JB_PC  7
+
+//Max number of threads
+#define MAX_NO_THREADS 128
+
+//Periodic timer (ms)
+#define TIMER 50000
+
+//Thread stack size
+#define STACK_SIZE 32767
 
 //Enumeration
 enum THREAD_STATUS
@@ -41,9 +41,6 @@ enum THREAD_STATUS
 
 //Running thread ID
 pthread_t CURRENT_THREAD_ID = 0;
-
-//Collection of threads in a table
-struct TCB TCB_TABLE[MAX_NO_THREADS];
 
 //Signal handler for SIGALARM
 struct sigaction SIGNAL_HANDLER;
@@ -104,6 +101,9 @@ struct TCB
 	enum THREAD_STATUS status;
 };
 
+//Collection of threads in a table
+struct TCB TCB_TABLE[MAX_NO_THREADS];
+
 
 //pthread_self to return thread ID
 pthread_t pthread_self(void)
@@ -116,9 +116,9 @@ static void scheduler()
 	pthread_t temp = CURRENT_THREAD_ID;
 	int jump;
 
-	if (TCB_TABLE[CURRENT_THREAD_ID].status == RUNNING)
+	if (TCB_TABLE[(int)CURRENT_THREAD_ID].status == RUNNING)
 	{
-		TCB_TABLE[CURRENT_THREAD_ID].status = READY;
+		TCB_TABLE[(int)CURRENT_THREAD_ID].status = READY;
 	}
 
 	//Iterating through TCB_TABLE to look for READY thread
@@ -135,24 +135,24 @@ static void scheduler()
 		}
 
 		//Break once a READY thread is found
-		if (TCB_TABLE[temp].status == READY)
+		if (TCB_TABLE[(int)temp].status == READY)
 		{
 			break;
 		}
 	}
 
 	//Save thread 'image' for thread that did not exit
-	if (TCB_TABLE[CURRENT_THREAD_ID].status != EXITED)
+	if (TCB_TABLE[(int)CURRENT_THREAD_ID].status != EXITED)
 	{
-		jump = setjmp(TCB_TABLE[CURRENT_THREAD_ID].regs);
+		jump = setjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs);
 	}
 
 	//Run found READY thread
 	if (!jump)
 	{
-		TCB_TABLE[temp].status = RUNNING;
+		TCB_TABLE[(int)temp].status = RUNNING;
 		CURRENT_THREAD_ID = temp;
-		longjmp(TCB_TABLE[CURRENT_THREAD_ID].regs, 1);
+		longjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs, 1);
 	}
 }
 
