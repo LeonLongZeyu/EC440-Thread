@@ -170,7 +170,7 @@ static void scheduler()
 
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
-	*attr = NULL; //As specified in the slides
+	attr = NULL; //As specified in the slides
 	static int start;
 	int MAIN_THREAD;
 
@@ -237,6 +237,8 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		*thread = temp;
 	}
 
+	setjmp(TCB_TABLE[(int)*thread].regs);
+
 	//Making context for threads (PC/ Regs/ Stack)
 	//PC
 
@@ -244,4 +246,3 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 
 	return 0;
 }
-
