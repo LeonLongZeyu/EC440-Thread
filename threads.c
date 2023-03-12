@@ -126,6 +126,7 @@ static void scheduler()
 	pthread_t temp = CURRENT_THREAD_ID;
 	int jump;
 
+	//Set currently running thread to be ready as quantum has ended
 	if (TCB_TABLE[(int)CURRENT_THREAD_ID].status == RUNNING)
 	{
 		TCB_TABLE[(int)CURRENT_THREAD_ID].status = READY;
@@ -169,6 +170,7 @@ static void scheduler()
 
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
+	*attr = NULL; //As specified in the slides
 	static int start;
 	int MAIN_THREAD;
 
@@ -202,7 +204,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 				SIGNAL_HANDLER.sa_handler = &scheduler; //Run the next thread after specified quantum
 				SIGNAL_HANDLER.sa_flags = SA_NODEFER; //Do not prevent the signal from being received from within its own signal handler (source #12)
 			}
-			
+
 			sigaction(SIGALRM, &SIGNAL_HANDLER, NULL);
 		}
 
@@ -216,15 +218,29 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		MAIN_THREAD = setjmp(TCB_TABLE[0].regs);
 	}
 
+	//Not main thread
 	if (!MAIN_THREAD)
 	{
 		pthread_t temp = 1;
 		
 		while (TCB_TABLE[(int)temp].status != EMPTY && (int)temp < MAX_NO_THREADS)
 		{
-
+			temp++;
 		}
+
+		if ((int)temp >= MAX_NO_THREADS)
+		{
+			//printf("ERROR: MAX_NO_THREADS exceeded.\n");
+			exit(EXIT_FAILURE);
+		}
+
+		*thread = temp;
 	}
+
+	//Making context for threads (PC/ Regs/ Stack)
+	//PC
+
+
 
 	return 0;
 }
