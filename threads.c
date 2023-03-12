@@ -167,7 +167,7 @@ static void scheduler()
 	}
 }
 
-
+/*
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
 	attr = NULL; //As specified in the slides
@@ -261,4 +261,4 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 
 	return 0;
 }
-
+*/
