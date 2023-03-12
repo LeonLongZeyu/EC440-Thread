@@ -2,3 +2,11 @@
 
 TODO:
 Read me to be complete 
+
+Sources (not exhaustive):
+https://man7.org/linux/man-pages/man3/usleep.3.html
+https://www.qnx.com/developers/docs/6.5.0SP1.update/com.qnx.doc.neutrino_lib_ref/u/ualarm.html
+https://pubs.opengroup.org/onlinepubs/7908799/xsh/sigemptyset.html
+https://man7.org/linux/man-pages/man3/sigemptyset.3p.html
+https://man7.org/linux/man-pages/man2/sigaction.2.html
+https://stackoverflow.com/questions/2418812/catching-signal-inside-its-own-handler
