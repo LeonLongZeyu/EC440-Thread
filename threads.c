@@ -107,7 +107,7 @@ struct TCB
 {
 	pthread_t TID;
 	void* stack;
-	jmp_buf regs;
+	jmp_buf regs[1];
 	enum THREAD_STATUS status;
 };
 
@@ -173,6 +173,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 	attr = NULL; //As specified in the slides
 	static int start;
 	int MAIN_THREAD;
+	int i = 1;
 
 	//Initialize TCB and setup round robin with specified interval 50ms
 	if (!start)
@@ -235,14 +236,29 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		}
 
 		*thread = temp;
+
+		//Stack allocation
+		TCB_TABLE[i].stack = malloc(STACK_SIZE);
+
+    	if (TCB_TABLE[i].stack == NULL)
+		{
+			//Stack allocation failed
+			//printf("ERROR: Failed to initialize stack.\n");
+			exit(EXIT_FAILURE);
+    	}
+
+		//Save thread regs
+		if (setjmp(TCB_TABLE[i].regs))
+		{
+			//printf("ERROR: Failed to save thread.\n");
+			free(TCB_TABLE[i].stack);
+			exit(EXIT_FAILURE);
+    	}
+
+		TCB_TABLE[i].regs[0].__jmpbuf[JB_PC] = ptr_mangle((unsigned long int)start_thunk);
 	}
-
-	setjmp(TCB_TABLE[(int)*thread].regs);
-
-	//Making context for threads (PC/ Regs/ Stack)
-	//PC
-
 
 
 	return 0;
 }
+
