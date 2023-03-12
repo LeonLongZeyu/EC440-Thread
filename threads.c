@@ -107,7 +107,7 @@ struct TCB
 {
 	pthread_t TID;
 	void* stack;
-	jmp_buf regs[1];
+	jmp_buf regs;
 	enum THREAD_STATUS status;
 };
 
@@ -167,7 +167,7 @@ static void scheduler()
 	}
 }
 
-/*
+
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
 	attr = NULL; //As specified in the slides
@@ -238,27 +238,28 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		*thread = temp;
 
 		//Stack allocation
-		TCB_TABLE[i].stack = malloc(STACK_SIZE);
+		TCB_TABLE[(int)temp].stack = malloc(STACK_SIZE);
 
-    	if (TCB_TABLE[i].stack == NULL)
+    	if (TCB_TABLE[(int)temp].stack == NULL)
 		{
 			//Stack allocation failed
 			//printf("ERROR: Failed to initialize stack.\n");
 			exit(EXIT_FAILURE);
     	}
 
-		//Save thread regs
-		if (setjmp(TCB_TABLE[i].regs))
-		{
-			//printf("ERROR: Failed to save thread.\n");
-			free(TCB_TABLE[i].stack);
-			exit(EXIT_FAILURE);
-    	}
+		setjmp(TCB_TABLE[(int)temp].regs);
 
-		TCB_TABLE[i].regs[0].__jmpbuf[JB_PC] = ptr_mangle((unsigned long int)start_thunk);
+		int* buf_array = (int*)TCB_TABLE[(int)temp].regs;
+
+        buf_array[JB_PC] = ptr_mangle((unsigned long int)start_thunk);
+
+		buf_array[JB_R12] = (unsigned long int) start_routine;
+
+		buf_array[JB_R12] = (long) arg;
+
+		
 	}
 
 
 	return 0;
 }
-*/
