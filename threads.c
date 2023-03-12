@@ -45,6 +45,16 @@ pthread_t CURRENT_THREAD_ID = 0;
 //Signal handler for SIGALARM
 struct sigaction SIGNAL_HANDLER;
 
+/*struct sigaction
+{
+	void     (*sa_handler)(int);
+	void     (*sa_sigaction)(int, siginfo_t *, void *);
+	sigset_t   sa_mask;
+	int        sa_flags;
+	void     (*sa_restorer)(void);
+};
+*/
+
 //Mangle function
 static unsigned long int ptr_mangle(unsigned long int p)
 {
@@ -156,7 +166,7 @@ static void scheduler()
 	}
 }
 
-/*
+
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
 	static int start;
@@ -166,22 +176,35 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 	if (!start)
 	{
 		//Filling up TCB_TABLE
-		for(int i = 0; i < MAX_THREADS; i++)
+		for(int i = 0; i < MAX_NO_THREADS; i++)
 		{
 			TCB_TABLE[i].TID = i;
 			TCB_TABLE[i].status = EMPTY;
 		}
 
-		// Setup the scheduler to SIGALRM with required interval
-		__useconds_t usecs = TIMER;
-		__useconds_t interval = TIMER;
-		ualarm(usecs, interval);
+		if (!start)
+		{
+			//Setup the scheduler to SIGALRM with required interval
+			useconds_t usecs = TIMER;
+			useconds_t interval = TIMER;
+			if (ualarm(usecs, interval) < 0)
+			{
+				//printf("ERROR: ualarm failed to initialize.\n");
+			}
 
-		// Round Robin
-		sigemptyset(&SIGNAL_HANDLER.sa_mask);
-		SIGNAL_HANDLER.sa_handler = &schedule;
-		SIGNAL_HANDLER.sa_flags = SA_NODEFER;
-		sigaction(SIGALRM, &SIGNAL_HANDLER, NULL);
+			//Round Robin
+			if (sigemptyset(&SIGNAL_HANDLER.sa_mask) < 0) //sigset_t
+			{
+				//printf("ERROR: sigemptyset failed to initialize.\n");
+			}
+			else
+			{
+				SIGNAL_HANDLER.sa_handler = &scheduler; //Run the next thread after specified quantum
+				SIGNAL_HANDLER.sa_flags = SA_NODEFER; //Do not prevent the signal from being received from within its own signal handler (source #12)
+			}
+			
+			sigaction(SIGALRM, &SIGNAL_HANDLER, NULL);
+		}
 
 		//Change start
 		start = 1;
@@ -197,9 +220,12 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 	{
 		pthread_t temp = 1;
 		
-		while (TCB_TABLE[temp].status != EMPTY && temp < MAX_NO_THREADS)
+		while (TCB_TABLE[(int)temp].status != EMPTY && (int)temp < MAX_NO_THREADS)
+		{
+
+		}
 	}
 
 	return 0;
 }
-*/
+
