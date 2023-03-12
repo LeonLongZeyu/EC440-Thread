@@ -1,7 +1,7 @@
 # EC440-Thread
 
-TODO:
-Read me to be complete 
+Hardest portion of this assignment so far is getting the registers and context right for pthread create. It was difficult to get the syntax correct.
+
 
 Sources (not exhaustive):
 https://man7.org/linux/man-pages/man3/usleep.3.html
@@ -10,3 +10,7 @@ https://pubs.opengroup.org/onlinepubs/7908799/xsh/sigemptyset.html
 https://man7.org/linux/man-pages/man3/sigemptyset.3p.html
 https://man7.org/linux/man-pages/man2/sigaction.2.html
 https://stackoverflow.com/questions/2418812/catching-signal-inside-its-own-handler
+https://www.tutorialspoint.com/c_standard_library/c_macro_setjmp.htm
+https://en.cppreference.com/w/c/program/jmp_buf#:~:text=The%20jmp_buf%20type%20is%20an,and%20invocation%20of%20that%20block.
+https://www.geeksforgeeks.org/thread-control-block-in-operating-system/
+https://stackoverflow.com/questions/47824932/where-is-the-program-counter-stored-during-thread-context-switch
