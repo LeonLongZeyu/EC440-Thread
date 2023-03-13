@@ -129,7 +129,6 @@ pthread_t pthread_self(void)
 static void scheduler()
 {
 	pthread_t temp = CURRENT_THREAD_ID;
-	int jump;
 
 	//Set currently running thread to be ready as quantum has ended
 	if (TCB_TABLE[(int)CURRENT_THREAD_ID].status == RUNNING)
@@ -157,10 +156,10 @@ static void scheduler()
 		}
 	}
 
-	//Save thread state for the previously running thread that did not exit
+	//Save thread state for the previously running thread that did not exit and runs the found READY thread
 	if (TCB_TABLE[(int)CURRENT_THREAD_ID].status != EXITED)
 	{
-		jump = setjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs);
+		setjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs);
 	}
 	else
 	{
@@ -168,15 +167,6 @@ static void scheduler()
 		CURRENT_THREAD_ID = temp;
 		longjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs, 1);
 	}
-/*
-	//Run found READY thread
-	if (!jump)
-	{
-		TCB_TABLE[(int)temp].status = RUNNING;
-		CURRENT_THREAD_ID = temp;
-		longjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs, 1);
-	}
-	*/
 }
 
 
@@ -256,7 +246,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 			else
 			{
 				SIGNAL_HANDLER.sa_handler = &scheduler; //Run the next thread after specified quantum
-				SIGNAL_HANDLER.sa_flags = SA_NODEFER; //Do not prevent the signal from being received from within its own signal handler (source #12)
+				//SIGNAL_HANDLER.sa_flags = SA_NODEFER; //Do not prevent the signal from being received from within its own signal handler (source #12)
 			}
 
 			sigaction(SIGALRM, &SIGNAL_HANDLER, NULL);
