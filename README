@@ -1,6 +1,7 @@
 # EC440-Thread
 
 Hardest portion of this assignment so far is getting the registers and context right for pthread create. It was difficult to get the syntax correct.
+To overcome this challenge, a friend recommended using a double pointer and that solved most of the issues outlined above.
 pthread_create() was failing my test cases and it was hard to debug. The scheduler was also another area of my code with issues.
 Implementing the signal handler and round robin was extremely challenging as it was novel.
 
