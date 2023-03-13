@@ -218,7 +218,6 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 	static int start;
 	int MAIN_THREAD;
 
-	/*
 	//Initialize TCB and setup round robin with specified interval 50ms
 	if (!start)
 	{
@@ -262,11 +261,11 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		//Main thread
 		MAIN_THREAD = setjmp(TCB_TABLE[0].regs);
 	}
-*/
+	
 	//Not main thread
 	if (!MAIN_THREAD)
 	{
-		pthread_t temp = 0;
+		pthread_t temp = 1;
 		
 		while (TCB_TABLE[(int)temp].status != EMPTY && (int)temp < MAX_NO_THREADS)
 		{
@@ -276,7 +275,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		if ((int)temp >= MAX_NO_THREADS)
 		{
 			//printf("ERROR: MAX_NO_THREADS exceeded.\n");
-			exit(EXIT_FAILURE);
+			//exit(EXIT_FAILURE);
 		}
 
 		*thread = temp;
@@ -288,7 +287,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		{
 			//Stack allocation failed
 			//printf("ERROR: Failed to initialize stack.\n");
-			exit(EXIT_FAILURE);
+			//exit(EXIT_FAILURE);
     	}
 
 		//Setting up the context stack
