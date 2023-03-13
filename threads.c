@@ -167,19 +167,23 @@ static void scheduler()
 	}
 }
 
+void pthread_exit(void* value_ptr)
+{
+
+}
 
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
 	attr = NULL; //As specified in the slides
 	static int start;
 	int MAIN_THREAD;
-	int i = 1;
+	int i = 0;
 
 	//Initialize TCB and setup round robin with specified interval 50ms
 	if (!start)
 	{
 		//Filling up TCB_TABLE
-		for(int i = 0; i < MAX_NO_THREADS; i++)
+		for(i; i < MAX_NO_THREADS; i++)
 		{
 			TCB_TABLE[i].TID = i;
 			TCB_TABLE[i].status = EMPTY;
@@ -247,19 +251,42 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 			exit(EXIT_FAILURE);
     	}
 
+		//Setting up the context stack
+		TCB_TABLE[(int)temp].stack[STACK_SIZE - 8] = (int) pthread_exit;
+		TCB_TABLE[(int)temp].stack[STACK_SIZE - 4] = (long) arg;
+		void (*temp) (void*) = (void*) &pthread_exit;
+        void* SP = memcpy(SP, &temp, sizeof(temp));
+
+		//Save thread regs state
 		setjmp(TCB_TABLE[(int)temp].regs);
 
+		//Double pointer
 		int* buf_array = (int*)TCB_TABLE[(int)temp].regs;
 
+		//Change PC
         buf_array[JB_PC] = ptr_mangle((unsigned long int)start_thunk);
 
+		//Change R12 to start_routine
 		buf_array[JB_R12] = (unsigned long int) start_routine;
 
+		//Change R13 to arg
 		buf_array[JB_R12] = (long) arg;
 
-		
-	}
+		//Change SP
+		buf_array[JB_RSP] = ptr_mangle((unsigned long int)SP);
 
+		//Set thread ID
+        TCB_TABLE[(int)temp].TID = temp;
+
+		//Change status to READY
+        TCB_TABLE[(int)temp].status = READY;
+
+        scheduler();
+	}
+	else
+	{
+		MAIN_THREAD = 0;
+	}
 
 	return 0;
 }
