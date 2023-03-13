@@ -261,7 +261,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		//Main thread
 		MAIN_THREAD = setjmp(TCB_TABLE[0].regs);
 	}
-
+/*
 	//Not main thread
 	if (!MAIN_THREAD)
 	{
@@ -333,3 +333,4 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 
 	return 0;
 }
+*/
