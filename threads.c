@@ -169,7 +169,43 @@ static void scheduler()
 
 void pthread_exit(void* value_ptr)
 {
+	int REMAINING_THREADS, i, j;
 
+	//Change status to EXITED
+	TCB_TABLE[(int)CURRENT_THREAD_ID].status = EXITED;
+
+	//Mark the current thread as exited and set any waiting threads as ready
+	pthread_t temp = TCB_TABLE[(int)CURRENT_THREAD_ID].TID;
+	if (temp != CURRENT_THREAD_ID)
+	{
+		TCB_TABLE[(int)temp].status = READY;
+	}
+
+	// Check if there are any threads that are still running or ready to run
+	for (i; i < MAX_NO_THREADS; i++)
+	{
+		if (TCB_TABLE[i].status != EXITED && TCB_TABLE[i].status != EMPTY)
+		{
+			REMAINING_THREADS = 1;
+			break;
+		}
+	}
+
+	//If there are any threads left, schedule another thread to run
+	if (REMAINING_THREADS)
+	{
+		scheduler();
+	}
+
+	//Free the stack of any threads that have exited
+	for (j; j < MAX_NO_THREADS; j++)
+	{
+		if (TCB_TABLE[i].status == EXITED)
+		{
+			free(TCB_TABLE[i].stack);
+			TCB_TABLE[i].status = EMPTY;
+		}
+	}
 }
 
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
