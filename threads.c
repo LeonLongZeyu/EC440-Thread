@@ -212,7 +212,7 @@ void pthread_exit(void* value_ptr)
 	}
 }
 
-/*
+
 int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_routine) (void* ), void* arg)
 {
 	attr = NULL; //As specified in the slides
@@ -302,7 +302,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		memcpy(SP, &EXIT_PTR, sizeof(EXIT_PTR));
 
 		//Save thread regs state
-		setjmp(TCB_TABLE[(int)temp].regs);
+		//setjmp(TCB_TABLE[(int)temp].regs);
 
 		//Double pointer
 		int* buf_array = (int*)TCB_TABLE[(int)temp].regs;
@@ -334,4 +334,3 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 
 	return 0;
 }
-*/
