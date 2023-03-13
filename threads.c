@@ -20,6 +20,10 @@
 #define JB_RSP 6
 #define JB_PC  7
 
+//bool
+#define FALSE 0
+#define TRUE  1
+
 //Max number of threads
 #define MAX_NO_THREADS 128
 
@@ -200,10 +204,10 @@ void pthread_exit(void* value_ptr)
 	//Free the stack of any threads that have exited
 	for (int j = 0; j < MAX_NO_THREADS; j++)
 	{
-		if (TCB_TABLE[i].status == EXITED)
+		if (TCB_TABLE[j].status == EXITED)
 		{
-			free(TCB_TABLE[i].stack);
-			TCB_TABLE[i].status = EMPTY;
+			free(TCB_TABLE[j].stack);
+			TCB_TABLE[j].status = EMPTY;
 		}
 	}
 }
