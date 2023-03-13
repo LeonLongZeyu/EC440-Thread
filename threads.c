@@ -252,10 +252,14 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
     	}
 
 		//Setting up the context stack
-		TCB_TABLE[(int)temp].stack[STACK_SIZE - 8] = (int) pthread_exit;
-		TCB_TABLE[(int)temp].stack[STACK_SIZE - 4] = (long) arg;
-		void (*temp) (void*) = (void*) &pthread_exit;
-        void* SP = memcpy(SP, &temp, sizeof(temp));
+		void* BOTTOM = TCB_TABLE[(int)temp].stack + STACK_SIZE;
+
+		//Calculate the address where the address of pthread_exit() will be stored
+		void* SP = BOTTOM - sizeof(void*);
+
+		// Cast the function pointer to a void pointer and store it at the stack pointer
+		void* EXIT_PTR = (void*) &pthread_exit;
+		memcpy(SP, &EXIT_PTR, sizeof(EXIT_PTR));
 
 		//Save thread regs state
 		setjmp(TCB_TABLE[(int)temp].regs);
