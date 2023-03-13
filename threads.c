@@ -125,6 +125,7 @@ pthread_t pthread_self(void)
 	return CURRENT_THREAD_ID;
 }
 
+//Scheduler
 static void scheduler()
 {
 	pthread_t temp = CURRENT_THREAD_ID;
@@ -156,7 +157,7 @@ static void scheduler()
 		}
 	}
 
-	//Save thread 'image' for thread that did not exit
+	//Save thread state for the previously running thread that did not exit
 	if (TCB_TABLE[(int)CURRENT_THREAD_ID].status != EXITED)
 	{
 		jump = setjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs);
@@ -170,6 +171,7 @@ static void scheduler()
 		longjmp(TCB_TABLE[(int)CURRENT_THREAD_ID].regs, 1);
 	}
 }
+
 
 void pthread_exit(void* value_ptr)
 {
@@ -308,7 +310,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		int* buf_array = (int*)TCB_TABLE[(int)temp].regs;
 
 		//Change PC
-        buf_array[JB_PC] = ptr_mangle((unsigned long int)start_thunk);
+        buf_array[JB_PC] = ptr_mangle((unsigned long int) start_thunk);
 
 		//Change R12 to start_routine
 		buf_array[JB_R12] = (unsigned long int) start_routine;
@@ -317,7 +319,7 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 		buf_array[JB_R12] = (long) arg;
 
 		//Change SP
-		buf_array[JB_RSP] = ptr_mangle((unsigned long int)SP);
+		buf_array[JB_RSP] = ptr_mangle((unsigned long int) SP);
 
 		//Set thread ID
         TCB_TABLE[(int)temp].TID = temp;
