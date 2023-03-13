@@ -169,7 +169,7 @@ static void scheduler()
 
 void pthread_exit(void* value_ptr)
 {
-	int REMAINING_THREADS, i, j;
+	bool REMAINING_THREADS = FALSE;
 
 	//Change status to EXITED
 	TCB_TABLE[(int)CURRENT_THREAD_ID].status = EXITED;
@@ -182,11 +182,11 @@ void pthread_exit(void* value_ptr)
 	}
 
 	// Check if there are any threads that are still running or ready to run
-	for (i; i < MAX_NO_THREADS; i++)
+	for (int i = 0; i < MAX_NO_THREADS; i++)
 	{
 		if (TCB_TABLE[i].status != EXITED && TCB_TABLE[i].status != EMPTY)
 		{
-			REMAINING_THREADS = 1;
+			REMAINING_THREADS = TRUE;
 			break;
 		}
 	}
@@ -198,7 +198,7 @@ void pthread_exit(void* value_ptr)
 	}
 
 	//Free the stack of any threads that have exited
-	for (j; j < MAX_NO_THREADS; j++)
+	for (int j = 0; j < MAX_NO_THREADS; j++)
 	{
 		if (TCB_TABLE[i].status == EXITED)
 		{
@@ -213,13 +213,12 @@ int pthread_create(pthread_t* thread, const pthread_attr_t* attr, void* (*start_
 	attr = NULL; //As specified in the slides
 	static int start;
 	int MAIN_THREAD;
-	int i = 0;
 
 	//Initialize TCB and setup round robin with specified interval 50ms
 	if (!start)
 	{
 		//Filling up TCB_TABLE
-		for(i; i < MAX_NO_THREADS; i++)
+		for(int i = 0; i < MAX_NO_THREADS; i++)
 		{
 			TCB_TABLE[i].TID = i;
 			TCB_TABLE[i].status = EMPTY;
